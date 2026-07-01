@@ -1,0 +1,121 @@
+/// One row per calendar date covering the range of the operations data; used as the shared calendar for filtering all fact tables and for time intelligence such as year-to-date and period comparisons. Keywords: calendar, working day.
+table Date
+	lineageTag: 274fe294-7172-4e75-b762-5b388dee3530
+
+	/// Calendar date. Use as the main date filter for all fact tables and time intelligence. Date value, e.g. 2024-03-31.
+	column Date
+		dataType: dateTime
+		isUnique
+		isKey
+		isNullable: false
+		formatString: Short Date
+		lineageTag: 9b1e886d-a355-4525-8972-43f6a37a9a4d
+		summarizeBy: none
+		sourceColumn: [Date]
+
+	/// Calendar year for this date. Use to group or filter metrics by year. Whole-number year, e.g. 2023, 2024.
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 35e416e4-be39-4ef5-bc95-4349a397013c
+		summarizeBy: none
+		sourceColumn: [Year]
+
+	/// Calendar quarter label for this date. Use to group results by quarter. Text label, e.g. 'Q1', 'Q3'; Partial-text match.
+	column Quarter
+		dataType: string
+		lineageTag: 4eed736b-81d0-4760-8661-c3d7b0e7aa0a
+		summarizeBy: none
+		sourceColumn: [Quarter]
+
+	/// Calendar quarter number for this date. Use when numeric quarter is needed. Whole-number 1–4, e.g. 1, 3.
+	column 'Quarter Number'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9c953241-eb5c-459b-8ddf-5e247eb93078
+		summarizeBy: none
+		sourceColumn: [Quarter Number]
+
+	/// Calendar month number for this date. Use for numeric month logic or sorting. Whole-number 1–12, e.g. 1, 12.
+	column 'Month Number'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: b42e43b9-9feb-4eb2-9635-a90cfe4bc9f6
+		summarizeBy: none
+		sourceColumn: [Month Number]
+
+	/// Calendar month name for this date. Use to group metrics by month label. Text label, e.g. 'January', 'Oct'; Partial-text match.
+	column 'Month Name'
+		dataType: string
+		lineageTag: 71b9b544-bbfe-4043-ae94-ec117d8a06d4
+		summarizeBy: none
+		sourceColumn: [Month Name]
+
+	/// Year-month label for this date. Use to group results by month in order. Text label, e.g. '2024-01'; Partial-text match.
+	column 'Year Month'
+		dataType: string
+		lineageTag: aa7c37b4-f5d5-4148-ba2d-869c0e0d9c31
+		summarizeBy: none
+		sourceColumn: [Year Month]
+
+	/// Week-of-year number for this date. Use to group metrics by calendar week. Whole-number week, e.g. 5, 42.
+	column 'Week Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: b593e25f-8acc-4d76-bf1b-7e91c91d712c
+		summarizeBy: none
+		sourceColumn: [Week Number]
+
+	/// Day-of-week number for this date. Use for numeric weekday logic. Whole-number 1–7 as stored, e.g. 1, 5.
+	column 'Day of Week Number'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 23ab4558-1fc0-4e0d-b611-2d53b6f4b066
+		summarizeBy: none
+		sourceColumn: [Day of Week Number]
+
+	/// Day-of-week name for this date. Use to group results by weekday. Text label, e.g. 'Monday', 'Fri'; Partial-text match.
+	column 'Day of Week'
+		dataType: string
+		lineageTag: 49c09372-3d45-4b0d-bc84-e89696a96fe3
+		summarizeBy: none
+		sourceColumn: [Day of Week]
+
+	/// Weekend flag for this date. Use to separate weekend vs weekday performance. TRUE/FALSE value, e.g. TRUE for weekend.
+	column 'Is Weekend'
+		dataType: boolean
+		lineageTag: db77f7dc-6e7a-4cbe-bfd5-6e7f9cb16896
+		summarizeBy: none
+		sourceColumn: [Is Weekend]
+
+	partition Date = calculated
+		mode: import
+		source =
+				VAR __Dates =
+				    UNION(
+				        SELECTCOLUMNS(Sales, "Date", Sales[Date]),
+				        SELECTCOLUMNS(Inventory, "Date", Inventory[Date]),
+				        SELECTCOLUMNS(PurchaseOrders, "Date", PurchaseOrders[Date]),
+				        SELECTCOLUMNS(ProductionLog, "Date", ProductionLog[Date]),
+				        SELECTCOLUMNS(SalesSummary, "Date", SalesSummary[Date])
+				    )
+				VAR __MinDate = MINX(__Dates, [Date])
+				VAR __MaxDate = MAXX(__Dates, [Date])
+				RETURN
+				    ADDCOLUMNS(
+				        CALENDAR(__MinDate, __MaxDate),
+				        "Year", YEAR([Date]),
+				        "Quarter", "Q" & FORMAT([Date], "Q"),
+				        "Quarter Number", QUARTER([Date]),
+				        "Month Number", MONTH([Date]),
+				        "Month Name", FORMAT([Date], "MMMM"),
+				        "Year Month", FORMAT([Date], "yyyy-MM"),
+				        "Week Number", WEEKNUM([Date], 2),
+				        "Day of Week Number", WEEKDAY([Date], 2),
+				        "Day of Week", FORMAT([Date], "dddd"),
+				        "Is Weekend", WEEKDAY([Date], 2) > 5
+				    )
+

@@ -1,0 +1,56 @@
+/// One row per customer we sell to (account, company or person); used to describe who we sell to and to slice sales and related measures by customer attributes such as name, segment or region. Keywords: client, account, buyer.
+table Customers
+	lineageTag: 145bfe42-8c12-4735-a9e3-93291d943840
+
+	/// Internal join key for Customers; use [Customer Name] for questions.
+	column ID
+		dataType: int64
+		isHidden
+		isUnique
+		isKey
+		isNullable: false
+		formatString: 0
+		lineageTag: 43475d04-af7a-4f5a-884a-c2e62f104057
+		summarizeBy: none
+		sourceColumn: ID
+
+	/// Customer name we sell to on this row. Use to filter and group sales by customer. Free-text name, e.g. 'Acme Corp'; Partial-text match. Keywords: client, account.
+	column 'Customer Name'
+		dataType: string
+		lineageTag: b6d3e170-ccfe-49ac-a78b-d3bbb9a7de06
+		summarizeBy: none
+		sourceColumn: custName
+
+	/// Customer segment label. Use to compare sales and customers by segment. Free-text category, e.g. 'Enterprise', 'SMB'; Partial-text match.
+	column segment
+		dataType: string
+		lineageTag: befe5391-fc29-496e-86ea-1e4a215ce863
+		summarizeBy: none
+		sourceColumn: segment
+
+	/// Customer region where the customer is based. Use to analyze customers and sales by region. Free-text region, e.g. 'EMEA', 'North America'; Partial-text match.
+	column Region
+		dataType: string
+		lineageTag: 35095b01-0549-4d5c-b593-7fe05b4083be
+		summarizeBy: none
+		sourceColumn: Region
+
+	/// Customer country. Use to analyze customers and sales by country. Free-text country, e.g. 'United States', 'Germany'; Partial-text match.
+	column country
+		dataType: string
+		lineageTag: 82f00d0e-e7e8-490a-be78-faa0eea57cec
+		summarizeBy: none
+		sourceColumn: country
+
+	partition Customers = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents(DataFolder, [RelativePath="Customers_Master.csv"]),[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"ID", Int64.Type}, {"custName", type text}, {"segment", type text}, {"Region", type text}, {"country", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

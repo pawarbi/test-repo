@@ -1,0 +1,96 @@
+/// One row per purchase order record (typically order or order line) for a vendor, plant and date; used to analyze what we buy, when we buy it and from whom, including quantities and costs. Keywords: PO, supplier order.
+table PurchaseOrders
+	lineageTag: 17ce3266-2987-457e-a921-fb200e993abf
+
+	/// Purchase order number for this row. Use to filter or group purchase activity by PO. Code or numeric ID, e.g. 4500123.
+	column 'PO Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: 07a37b23-3396-48dc-b101-5de1826f7591
+		summarizeBy: count
+		sourceColumn: PO_Number
+
+	/// Purchase order date for this record. Use to analyze purchasing over time. Calendar date, e.g. 2024-03-31.
+	column Date
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 442a31aa-31cc-45b7-beba-312ac77c0e27
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Vendor name we buy from on this order. Use to analyze purchasing by vendor. Free-text name, e.g. 'Global Metals'; Partial-text match. Not a customer name.
+	column 'Vendor Name'
+		dataType: string
+		lineageTag: 813bdb5d-e57d-4501-97af-963df5fb0aae
+		summarizeBy: none
+		sourceColumn: VendorName
+
+	/// Plant receiving this purchase order. Use to analyze purchasing by plant. Free-text plant name, e.g. 'Plant A'; Partial-text match.
+	column Plant
+		dataType: string
+		lineageTag: c9162e17-d508-476c-8c9d-eb27fbb0cda9
+		summarizeBy: none
+		sourceColumn: Plant
+
+	/// Ordered quantity on this purchase order row. Use to see purchased units. Whole-number quantity, e.g. 100, 250.
+	column Quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: da1f1390-bda3-499d-8b0e-bafb35191e91
+		summarizeBy: sum
+		sourceColumn: Qty
+
+	/// Unit cost for the purchased item on this row. Use to analyze purchase prices. Numeric amount, e.g. 2.50, 15.75.
+	column 'Unit Cost'
+		dataType: double
+		formatString: 0.00
+		lineageTag: a1ae67d3-3a07-4923-b5d3-5971cc6808ba
+		summarizeBy: average
+		sourceColumn: UnitCost
+
+	/// Total purchase amount for this row (quantity × unit cost as stored). Use to analyze spend by PO line. Numeric amount, e.g. 250, 1575.50.
+	column Amount
+		dataType: double
+		formatString: 0.00
+		lineageTag: 3bf03a30-7a67-4569-87cb-32f5c5af4ae4
+		summarizeBy: sum
+		sourceColumn: Amount
+
+	/// Promised lead time for this order in days. Use to compare promised vs actual delivery speed. Whole-number days, e.g. 5, 10.
+	column 'Promised Days'
+		dataType: int64
+		formatString: 0
+		lineageTag: 748388fa-fee2-4847-95e2-a467f68ae5d0
+		summarizeBy: average
+		sourceColumn: PromisedDays
+
+	/// Actual delivery time for this order in days. Use to analyze real lead times. Whole-number days, e.g. 6, 12.
+	column 'Actual Days'
+		dataType: int64
+		formatString: 0
+		lineageTag: 1f0089d1-194d-4d46-91e4-f673ccd1aea7
+		summarizeBy: average
+		sourceColumn: ActualDays
+
+	/// On-time delivery flag for this order. Use to track delivery reliability. TRUE/FALSE value, e.g. TRUE for on-time.
+	column 'On Time'
+		dataType: boolean
+		lineageTag: 999cfe9a-d11e-490c-a5b4-5d4773d7998c
+		summarizeBy: none
+		sourceColumn: OnTime
+
+	partition PurchaseOrders = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents(DataFolder, [RelativePath="PO_Data.csv"]),[Delimiter=",", Columns=10, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"PO_Number", Int64.Type}, {"Date", type date}, {"VendorName", type text}, {"Plant", type text}, {"Qty", Int64.Type}, {"UnitCost", type number}, {"Amount", type number}, {"PromisedDays", Int64.Type}, {"ActualDays", Int64.Type}, {"OnTime", type logical}}),
+				    #"Filtered AsOf" = Table.SelectRows(#"Changed Type", each [Date] <= (if AsOfDate = null or Text.Trim(AsOfDate) = "" then Date.From(DateTimeZone.FixedLocalNow()) else Date.FromText(Text.Trim(AsOfDate))))
+				in
+				    #"Filtered AsOf"
+
+	annotation PBI_ResultType = Table
+

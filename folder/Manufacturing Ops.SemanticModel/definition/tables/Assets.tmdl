@@ -1,0 +1,76 @@
+/// One row per physical asset or device we run in our operations; used to describe machines and equipment and to relate production logs or line assignments back to specific assets. Keywords: machine, equipment.
+table Assets
+	lineageTag: 04a2d9c7-a668-4344-a871-2ed6c4296091
+
+	/// Internal join key for Assets; use [Asset Name] for questions.
+	column ID
+		dataType: int64
+		isHidden
+		isUnique
+		isKey
+		isNullable: false
+		formatString: 0
+		lineageTag: ea970e1e-65b1-49d7-b430-781a82de8423
+		summarizeBy: none
+		sourceColumn: ID
+
+	/// Device identifier used to link assets, lines and logs. Use when analyzing or filtering by specific device. Code-like value, e.g. 'DEV-1001'.
+	column Device_Id
+		dataType: string
+		isHidden
+		isUnique
+		lineageTag: 6d1bbe9f-d87e-4570-8750-e037bd227b78
+		summarizeBy: none
+		sourceColumn: Device_Id
+
+	/// Asset or machine name we run. Use to analyze production and downtime by machine. Free-text name, e.g. 'Press 1'; Partial-text match. Keywords: machine, equipment.
+	column 'Asset Name'
+		dataType: string
+		lineageTag: 3485a626-1661-4398-a8e9-d31a0cd0dbaf
+		summarizeBy: none
+		sourceColumn: Name
+
+	/// Asset type or class. Use to compare performance and downtime by equipment type. Free-text category, e.g. 'Press', 'Conveyor'; Partial-text match.
+	column 'Asset Type'
+		dataType: string
+		lineageTag: f928dceb-897d-4cdf-9976-387a3980bcea
+		summarizeBy: none
+		sourceColumn: type
+
+	/// Asset manufacturer. Use to analyze assets and performance by manufacturer. Free-text name, e.g. 'OEM Co.'; Partial-text match.
+	column Manufacturer
+		dataType: string
+		lineageTag: c7e6b9cd-62ce-4bfd-9310-f37c0af809d3
+		summarizeBy: none
+		sourceColumn: Mfr
+
+	/// Internal join key linking assets to Plants; use plant columns like [Plant Name] for questions.
+	column PlantID
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: b16466d7-d5af-4949-8050-e43833d982f5
+		summarizeBy: none
+		sourceColumn: PlantID
+
+	/// Location of the asset within the plant. Use to compare equipment by area. Free-text location, e.g. 'Line 1', 'Bay 3'; Partial-text match.
+	column Location
+		dataType: string
+		lineageTag: 47abcd6e-dd94-491c-8ad0-693f7b46d5aa
+		summarizeBy: none
+		sourceColumn: Location
+
+	partition Assets = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents(DataFolder, [RelativePath="Assets.csv"]),[Delimiter=",", Columns=7, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"ID", Int64.Type}, {"Device_Id", type text}, {"Name", type text}, {"type", type text}, {"Mfr", type text}, {"PlantID", Int64.Type}, {"Location", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

@@ -1,0 +1,10 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/dataAgent/definition/fewShots/1.0.0/schema.json",
+  "fewShots": [
+    {
+      "id": "2b0402c3-6668-4b9b-b089-6591b7c65d8f",
+      "question": "How many customers are in the customers table?",
+      "query": "SELECT COUNT(*) AS customer_count FROM dbo.customers"
+    }
+  ]
+}

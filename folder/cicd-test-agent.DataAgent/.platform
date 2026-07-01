@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataAgent",
+    "displayName": "cicd-test-agent"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "8c735874-431b-8199-4c1e-b85f4428b7e5"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataAgent",
+    "displayName": "_labeval_airready"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "2436ed81-a0f6-9fd8-42f9-cea6e28634bb"
+  }
+}

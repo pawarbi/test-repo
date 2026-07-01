@@ -1,0 +1,42 @@
+/// One row per summarized sales result for a given customer and date (for example, daily totals); used to analyze sales at an aggregated level without querying individual transactions. Keywords: aggregated sales, sales summary.
+table SalesSummary
+	lineageTag: bb3c7167-2650-4832-9611-58b028ecdfa9
+
+	/// Date for this summarized sales row. Use to analyze aggregated sales by day. Calendar date, e.g. 2024-03-31.
+	column Date
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 1fa7c956-1a6c-4ded-bfbf-52befe023a3a
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Customer name for this summarized sales row. Use to analyze aggregated sales by customer. Free-text name, e.g. 'Acme Corp'; Partial-text match.
+	column 'Customer Name'
+		dataType: string
+		lineageTag: 9ce7ec73-7ab1-4b0d-91bc-aa580b222b2c
+		summarizeBy: none
+		sourceColumn: custName
+
+	/// Summarized sales amount for this customer and date. Use to analyze revenue at an aggregated level. Numeric amount, e.g. 1000, 2500.
+	column Amount
+		dataType: double
+		formatString: 0.00
+		lineageTag: 762562fe-0fc9-4bed-bfe2-67029141ef81
+		summarizeBy: sum
+		sourceColumn: Amount
+
+	partition SalesSummary = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents(DataFolder, [RelativePath="Sheet1.csv"]),[Delimiter=",", Columns=3, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Date", type date}, {"custName", type text}, {"Amount", type number}}),
+				    #"Filtered AsOf" = Table.SelectRows(#"Changed Type", each [Date] <= (if AsOfDate = null or Text.Trim(AsOfDate) = "" then Date.From(DateTimeZone.FixedLocalNow()) else Date.FromText(Text.Trim(AsOfDate))))
+				in
+				    #"Filtered AsOf"
+
+	annotation PBI_ResultType = Table
+

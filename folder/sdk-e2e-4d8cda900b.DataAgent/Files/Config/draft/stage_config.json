@@ -1,0 +1,4 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/dataAgent/definition/stageConfiguration/1.0.0/schema.json",
+  "aiInstructions": "SDK validation agent. Use the lakehouse customers table for customer questions. This disposable agent should be deleted after validation."
+}

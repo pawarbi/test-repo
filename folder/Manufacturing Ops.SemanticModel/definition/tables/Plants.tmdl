@@ -1,0 +1,64 @@
+/// One row per manufacturing plant or site; used to identify where we run production, hold inventory and place purchase orders so operational measures can be analyzed by plant. Keywords: factory, site, facility.
+table Plants
+	lineageTag: f461104a-bda7-4591-9641-7a349d382b22
+
+	/// Internal join key for Plants; use [Plant Name] for questions.
+	column ID
+		dataType: int64
+		isHidden
+		isUnique
+		isKey
+		isNullable: false
+		formatString: 0
+		lineageTag: 880b261d-c91e-4505-ab96-d4918fdf0120
+		summarizeBy: none
+		sourceColumn: ID
+
+	/// Plant name we operate. Use to slice production, inventory and purchasing by plant. Free-text name, e.g. 'Plant A', 'Berlin Plant'; Partial-text match. Keywords: factory, site, facility.
+	column 'Plant Name'
+		dataType: string
+		lineageTag: 9e9c6618-aaa2-4f90-9fc8-3680f17445e7
+		summarizeBy: none
+		sourceColumn: Name
+
+	/// Plant region where we operate. Use to group plant-related metrics by region. Free-text region, e.g. 'EMEA', 'APAC'; Partial-text match. Not a customer region field.
+	column Region
+		dataType: string
+		lineageTag: 7e479336-9912-4a84-8e2a-d1cd717d455d
+		summarizeBy: none
+		sourceColumn: Region
+
+	/// Plant country. Use to report production, inventory or purchasing by country. Free-text country, e.g. 'France', 'Brazil'; Partial-text match.
+	column Country
+		dataType: string
+		lineageTag: df8054cd-0229-4599-bb0e-275b65d6c341
+		summarizeBy: none
+		sourceColumn: Country
+
+	/// Plant city. Use to analyze plant activity by city location. Free-text city, e.g. 'Chicago', 'Munich'; Partial-text match.
+	column City
+		dataType: string
+		lineageTag: c9e5466d-7b6e-4b27-a75c-001449a558ba
+		summarizeBy: none
+		sourceColumn: City
+
+	/// Year attribute for the plant as stored in data. Use to slice plant-level analysis by year. Whole-number year, e.g. 2020, 2024.
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 11d77a06-d40e-4601-878b-128c5cd3d4e4
+		summarizeBy: none
+		sourceColumn: Year
+
+	partition Plants = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents(DataFolder, [RelativePath="Plants.csv"]),[Delimiter=",", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"ID", Int64.Type}, {"Name", type text}, {"Region", type text}, {"Country", type text}, {"City", type text}, {"Year", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

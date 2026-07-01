@@ -1,0 +1,1211 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/dataAgent/definition/dataSource/1.0.0/schema.json",
+  "artifactId": "89a32149-15ec-4f5d-814e-8a3013450b43",
+  "workspaceId": "0ca61ca8-161e-4037-a5f7-576fd6425283",
+  "dataSourceInstructions": null,
+  "displayName": "ecommerce-dataset",
+  "type": "semantic_model",
+  "userDescription": null,
+  "metadata": {
+    "csdl_relationships": "[{\"FromTable\":\"Customers\",\"FromColumn\":\"Customer_Zip_Code\",\"ToTable\":\"Customer_Geography\",\"ToColumn\":\"Zip_Code\",\"IsActive\":true,\"IsBidirectional\":false,\"Cardinality\":\"ManyToOne\"},{\"FromTable\":\"Sales\",\"FromColumn\":\"Customer_ID\",\"ToTable\":\"Customers\",\"ToColumn\":\"Customer_ID\",\"IsActive\":true,\"IsBidirectional\":false,\"Cardinality\":\"ManyToOne\"},{\"FromTable\":\"Sales\",\"FromColumn\":\"Product_ID\",\"ToTable\":\"Products\",\"ToColumn\":\"Product_ID\",\"IsActive\":true,\"IsBidirectional\":false,\"Cardinality\":\"ManyToOne\"},{\"FromTable\":\"Sales\",\"FromColumn\":\"Seller_ID\",\"ToTable\":\"Sellers\",\"ToColumn\":\"Seller_ID\",\"IsActive\":true,\"IsBidirectional\":false,\"Cardinality\":\"ManyToOne\"},{\"FromTable\":\"Sales\",\"FromColumn\":\"Order_Date_Key\",\"ToTable\":\"Date\",\"ToColumn\":\"Date_Key\",\"IsActive\":true,\"IsBidirectional\":false,\"Cardinality\":\"ManyToOne\"},{\"FromTable\":\"Sales\",\"FromColumn\":\"Customer_Delivery_Date_Key\",\"ToTable\":\"Date\",\"ToColumn\":\"Date_Key\",\"IsActive\":true,\"IsBidirectional\":false,\"Cardinality\":\"ManyToOne\"},{\"FromTable\":\"Sellers\",\"FromColumn\":\"Seller_Zip_Code\",\"ToTable\":\"Seller_Geography\",\"ToColumn\":\"Zip_Code\",\"IsActive\":true,\"IsBidirectional\":false,\"Cardinality\":\"ManyToOne\"}]"
+  },
+  "elements": [
+    {
+      "id": "d1ac49d7-bf9c-42a2-96b2-fe458bee11f8",
+      "is_selected": true,
+      "display_name": "Currency",
+      "type": "semantic_model.table",
+      "description": "Disconnected currency converter. No relationships. Select a currency and [Converted Revenue] shows revenue in that currency. Values: BRL (R$), USD ($), EUR (€), GBP (£).",
+      "children": [
+        {
+          "id": "60262b08-430d-447d-a605-a5b2d0160b91",
+          "is_selected": true,
+          "display_name": "Currency",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Currency name for conversion. Values: BRL (Brazilian Real), USD (US Dollar), EUR (Euro), GBP (British Pound).",
+          "children": []
+        },
+        {
+          "id": "b17750e2-e985-43ec-9d48-bf8db4ae224d",
+          "is_selected": true,
+          "display_name": "Symbol",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Currency symbol used for formatting. Values: R$, $, €, £.",
+          "children": []
+        },
+        {
+          "id": "67dc2249-a01b-4b46-bc8b-7632fd8b678d",
+          "is_selected": true,
+          "display_name": "Rate to BRL",
+          "type": "semantic_model.column",
+          "data_type": "Double",
+          "description": "Exchange rate from BRL to target currency. Multiply BRL value by this rate.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "d36be5b5-a1dd-4006-91d5-bfc9245b1958",
+      "is_selected": true,
+      "display_name": "Customer Geography",
+      "type": "semantic_model.table",
+      "description": "Customer location details: city, state, and lat/long coordinates for mapping.",
+      "children": [
+        {
+          "id": "8cb2ec59-abf6-4fee-b2ac-8c7a59c6fa95",
+          "is_selected": true,
+          "display_name": "Zip Code",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Postal code for customer location.",
+          "children": []
+        },
+        {
+          "id": "b3ea58d2-717c-41ab-8d25-5de8eafd31c4",
+          "is_selected": true,
+          "display_name": "City",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Customer city name in Brazil.",
+          "children": []
+        },
+        {
+          "id": "6cadcf6e-b537-4956-a38f-d578eee6a955",
+          "is_selected": true,
+          "display_name": "State",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Customer Brazilian state code (e.g., SP, RJ, MG).",
+          "children": []
+        },
+        {
+          "id": "23157f08-e031-44ba-98d7-dff9a98362f8",
+          "is_selected": true,
+          "display_name": "Latitude",
+          "type": "semantic_model.column",
+          "data_type": "Double",
+          "description": "Customer latitude coordinate for map visualizations.",
+          "children": []
+        },
+        {
+          "id": "b6fc89b4-d5c9-403b-ac17-6902cbdb9e21",
+          "is_selected": true,
+          "display_name": "Longitude",
+          "type": "semantic_model.column",
+          "data_type": "Double",
+          "description": "Customer longitude coordinate for map visualizations.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "95a784d3-33f3-48eb-9969-1a76cda4bd63",
+      "is_selected": true,
+      "display_name": "Customers",
+      "type": "semantic_model.table",
+      "description": "Customer dimension. One row per unique customer with location info.",
+      "children": [
+        {
+          "id": "fc0192b1-3310-4a2b-8b3c-5288c6fa2111",
+          "is_selected": true,
+          "display_name": "Customer ID",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Unique customer identifier. Prefer Customer City or State for display.",
+          "children": []
+        },
+        {
+          "id": "485e7f1d-210e-474f-8845-0c9f1f61755d",
+          "is_selected": true,
+          "display_name": "Customer Zip Code",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Customer postal code. Use for geographic segmentation.",
+          "children": []
+        },
+        {
+          "id": "58fb69cd-1701-4a28-b444-b15d3beb79ff",
+          "is_selected": true,
+          "display_name": "Customer City",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "City where customer is located in Brazil.",
+          "children": []
+        },
+        {
+          "id": "cefcdf98-d7f7-484d-bcb3-d04442bd6885",
+          "is_selected": true,
+          "display_name": "Customer State",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Brazilian state code (e.g., SP, RJ, MG). Use for state-level aggregation.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "aaf0a9ea-a650-45f2-a9e6-33b3a1d2251d",
+      "is_selected": true,
+      "display_name": "Date",
+      "type": "semantic_model.table",
+      "description": "Calendar date dimension for time-based analysis. Covers the full order date range.",
+      "children": [
+        {
+          "id": "a1009e7b-304d-45ce-8871-1303a9289a6f",
+          "is_selected": true,
+          "display_name": "Date Key",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Integer date key in YYYYMMDD format. Not for display.",
+          "children": []
+        },
+        {
+          "id": "0fc8b6f8-5da4-42ba-9671-71bbecb9acef",
+          "is_selected": true,
+          "display_name": "Date",
+          "type": "semantic_model.column",
+          "data_type": "DateTime",
+          "description": "Calendar date. Use for time intelligence functions (TOTALYTD, SAMEPERIODLASTYEAR).",
+          "children": []
+        },
+        {
+          "id": "eb1c3772-ce12-43b3-ad34-598ee77a3a60",
+          "is_selected": true,
+          "display_name": "Year",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Calendar year (e.g., 2017, 2018). Use for annual comparisons.",
+          "children": []
+        },
+        {
+          "id": "3724be15-cfd7-41a9-8b16-1bf21471283d",
+          "is_selected": true,
+          "display_name": "Quarter",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Quarter number (1–4). Use for quarterly trend analysis.",
+          "children": []
+        },
+        {
+          "id": "7475c5f2-fb2a-4836-a444-bda3991b1b54",
+          "is_selected": true,
+          "display_name": "Month Number",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Month number 1–12. Use to sort Month Name chronologically.",
+          "children": []
+        },
+        {
+          "id": "6c3c30b4-4d11-41e1-864c-08d872ed22dc",
+          "is_selected": true,
+          "display_name": "Month Name",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Month name (e.g., January). Display-friendly; sort by Month Number for correct order.",
+          "children": []
+        },
+        {
+          "id": "f236d9cc-e87a-4dd7-841e-99a15d398873",
+          "is_selected": true,
+          "display_name": "Year Month",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Year-month label (e.g., 2018-01). Use for monthly trend reporting.",
+          "children": []
+        },
+        {
+          "id": "6d9c9180-3a41-4f3d-8200-43a81a67597f",
+          "is_selected": true,
+          "display_name": "Day of Month",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Day number within the month (1–31).",
+          "children": []
+        },
+        {
+          "id": "0f3f1ca5-8bca-4086-96fc-97e94002a886",
+          "is_selected": true,
+          "display_name": "Day of Week",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Day number within the week (1–7). Use to sort Day Name.",
+          "children": []
+        },
+        {
+          "id": "e81b902c-6185-4943-a1b5-b827558c3241",
+          "is_selected": true,
+          "display_name": "Day Name",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Day name (e.g., Monday). Display-friendly; sort by Day of Week for correct order.",
+          "children": []
+        },
+        {
+          "id": "21eb76d3-ec80-4073-82ea-d266d1fdad87",
+          "is_selected": true,
+          "display_name": "Day of Year",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Day number within the year (1–366). Use for seasonal pattern analysis.",
+          "children": []
+        },
+        {
+          "id": "2e36754d-8275-49ea-964d-9f55afefce7a",
+          "is_selected": true,
+          "display_name": "Is Weekend",
+          "type": "semantic_model.column",
+          "data_type": "Boolean",
+          "description": "True for Saturday/Sunday. Use to compare weekday vs weekend performance.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "bf7e9bfe-a3ee-4a07-8b5d-67b9cdd16226",
+      "is_selected": true,
+      "display_name": "KPI Selector",
+      "type": "semantic_model.table",
+      "description": "Disconnected slicer table. No relationships. Select a KPI name and the [Selected KPI] measure returns its value.",
+      "children": [
+        {
+          "id": "58db883b-5e52-411d-8f0e-60f275e49186",
+          "is_selected": true,
+          "display_name": "KPI",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Pick a KPI to display. Drives [Selected KPI] measure. Values: Revenue, Orders, Avg Delivery Days, Avg Order Value, Late Delivery Pct.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "1857d0ba-bfa1-40a8-879f-b0006a3c3c72",
+      "is_selected": true,
+      "display_name": "Products",
+      "type": "semantic_model.table",
+      "description": "Product dimension with categories (English and Portuguese) and physical attributes.",
+      "children": [
+        {
+          "id": "b7e91666-4c04-409d-9646-c6bd66bf7dc8",
+          "is_selected": true,
+          "display_name": "Product Category",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Category name in Portuguese.",
+          "children": []
+        },
+        {
+          "id": "e7d142dd-7506-49e6-98d8-3bff5d1e9449",
+          "is_selected": true,
+          "display_name": "Product Category English",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Category name in English.",
+          "children": []
+        },
+        {
+          "id": "2239280e-37aa-4748-8a6b-f09779770f52",
+          "is_selected": true,
+          "display_name": "Product Name Length",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Character count of product name listing.",
+          "children": []
+        },
+        {
+          "id": "197f9ffb-41a6-46e1-a9b4-518549d5d424",
+          "is_selected": true,
+          "display_name": "Product Description Length",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Character count of product description listing.",
+          "children": []
+        },
+        {
+          "id": "ade2f2ce-9992-4374-bf5a-4b5d06d40456",
+          "is_selected": true,
+          "display_name": "Product Photos Count",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Number of product photos in the listing.",
+          "children": []
+        },
+        {
+          "id": "84e5d4a7-4c13-4776-8520-18cd354a8fd3",
+          "is_selected": true,
+          "display_name": "Product Weight (g)",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Product weight in grams.",
+          "children": []
+        },
+        {
+          "id": "0b7f26e4-998a-47cc-badc-bfdc17f65b44",
+          "is_selected": true,
+          "display_name": "Product Length (cm)",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Product length in centimeters.",
+          "children": []
+        },
+        {
+          "id": "840ee618-0c1a-4535-ba6b-4761a0297950",
+          "is_selected": true,
+          "display_name": "Product Height (cm)",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Product height in centimeters.",
+          "children": []
+        },
+        {
+          "id": "0b95976f-50f9-40e4-91c8-56c14133671b",
+          "is_selected": true,
+          "display_name": "Product Width (cm)",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Product width in centimeters.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "60cc6da8-22b1-478c-87ab-e6717de884fb",
+      "is_selected": true,
+      "display_name": "Sales",
+      "type": "semantic_model.table",
+      "description": "Fact table. One row per order line item with pricing, payment, and delivery metrics.",
+      "children": [
+        {
+          "id": "0d331a5c-f5c0-4ccb-8682-66d7f8a15b47",
+          "is_selected": true,
+          "display_name": "Order ID",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Order identifier. One order can have multiple line items.",
+          "children": []
+        },
+        {
+          "id": "f24c428e-e4a8-426d-8726-7050290cf017",
+          "is_selected": true,
+          "display_name": "Order Item ID",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Sequential line item number within an order (1, 2, 3...).",
+          "children": []
+        },
+        {
+          "id": "892568af-528e-4c27-91ee-97fcc037dd25",
+          "is_selected": true,
+          "display_name": "Customer ID",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Customer identifier. Prefer Customer City or State for display.",
+          "children": []
+        },
+        {
+          "id": "7f2766aa-c127-4c08-87a3-6ef1f09a14df",
+          "is_selected": true,
+          "display_name": "Customer Zip Code",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Customer postal code at time of purchase.",
+          "children": []
+        },
+        {
+          "id": "21fc4cec-270b-40cc-89f8-140c87f5b805",
+          "is_selected": true,
+          "display_name": "Payment Type",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Payment method. Values: credit_card, boleto, voucher, debit_card.",
+          "children": []
+        },
+        {
+          "id": "7772459b-5354-4d34-99de-69194d828832",
+          "is_selected": true,
+          "display_name": "Payment Installments",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Number of payment installments chosen by customer. 1 = paid in full.",
+          "children": []
+        },
+        {
+          "id": "636c5ff0-dc04-4608-9efb-87451f105656",
+          "is_selected": true,
+          "display_name": "Order Date Key",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Date key (YYYYMMDD) for when the order was placed.",
+          "children": []
+        },
+        {
+          "id": "800edbad-2ac8-47d7-b3f0-2b1729513e7f",
+          "is_selected": true,
+          "display_name": "Approved Date Key",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Date key (YYYYMMDD) for when payment was approved.",
+          "children": []
+        },
+        {
+          "id": "e068f75e-22fb-41fb-898a-401198791c69",
+          "is_selected": true,
+          "display_name": "Carrier Delivery Date Key",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Date key (YYYYMMDD) when carrier completed delivery.",
+          "children": []
+        },
+        {
+          "id": "b36ef467-91a9-4a20-bf34-bcf6966096fe",
+          "is_selected": true,
+          "display_name": "Customer Delivery Date Key",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Date key (YYYYMMDD) when customer received the order.",
+          "children": []
+        },
+        {
+          "id": "2e83ff73-63c6-4320-b9c9-a699e44e1e07",
+          "is_selected": true,
+          "display_name": "Estimated Delivery Date Key",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Date key (YYYYMMDD) for estimated delivery. Compare with actuals for SLA analysis.",
+          "children": []
+        },
+        {
+          "id": "c3e5fdc8-51c2-42fe-bfe5-3b45cce9f46c",
+          "is_selected": true,
+          "display_name": "Price",
+          "type": "semantic_model.column",
+          "data_type": "Double",
+          "description": "Unit price in BRL (Brazilian Reais).",
+          "children": []
+        },
+        {
+          "id": "fbf4fdad-2c9e-4f58-ad01-a53f594c5fa8",
+          "is_selected": true,
+          "display_name": "Freight Value",
+          "type": "semantic_model.column",
+          "data_type": "Double",
+          "description": "Shipping/freight cost per line item in BRL.",
+          "children": []
+        },
+        {
+          "id": "d4deb2fa-01ce-4530-9ebe-11362339bced",
+          "is_selected": true,
+          "display_name": "Total Payment Value",
+          "type": "semantic_model.column",
+          "data_type": "Double",
+          "description": "Total payment for the order in BRL, including price and freight.",
+          "children": []
+        },
+        {
+          "id": "c87a4395-d742-4fec-8d28-5facd98331dc",
+          "is_selected": true,
+          "display_name": "Line Total",
+          "type": "semantic_model.column",
+          "data_type": "Double",
+          "description": "Line item total (price + freight) in BRL. Use for per-item revenue.",
+          "children": []
+        },
+        {
+          "id": "f284ddaf-2760-4054-ba5d-b28785e3b189",
+          "is_selected": true,
+          "display_name": "Delivery Days",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Calendar days between order placement and actual delivery.",
+          "children": []
+        },
+        {
+          "id": "1888bf13-a112-4551-bfdc-2f675300f9d1",
+          "is_selected": true,
+          "display_name": "Delivery Variance Days",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Actual minus estimated delivery days. Negative = early, positive = late.",
+          "children": []
+        },
+        {
+          "id": "c2bcad08-20a0-42b1-bac1-ad08c70d16aa",
+          "is_selected": true,
+          "display_name": "Approval Hours",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Hours between order placement and payment approval.",
+          "children": []
+        },
+        {
+          "id": "8cac52b7-82d8-4f9f-b7fa-5b73326e46c9",
+          "is_selected": true,
+          "display_name": "Is Delivered",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "1 = delivered, 0 = not yet delivered. Use to filter completed orders.",
+          "children": []
+        },
+        {
+          "id": "d3810c9b-401a-46cb-b61d-225f4f0e71bd",
+          "is_selected": true,
+          "display_name": "Is Late",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "1 = delivered after estimated date, 0 = on time or early.",
+          "children": []
+        },
+        {
+          "id": "b63782b4-4af3-4d78-844d-0ea2612bb227",
+          "is_selected": true,
+          "display_name": "Delivery Status",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Delivery performance label. Values: On Time, Late.",
+          "children": []
+        },
+        {
+          "id": "c9642dd2-75a8-4e65-bc78-56dfebfbeb01",
+          "is_selected": true,
+          "display_name": "Order Status",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Order lifecycle status. Values: delivered, shipped, canceled, processing.",
+          "children": []
+        },
+        {
+          "id": "bbae9468-be82-4946-807d-7c99e632f485",
+          "is_selected": true,
+          "display_name": "Payment Method",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Readable payment method name. Maps: credit_card → Credit Card, boleto → Bank Slip (Boleto), voucher → Voucher, debit_card → Debit Card.",
+          "children": []
+        },
+        {
+          "id": "4f087eae-8c2e-45cb-a8ff-8a61271d70d6",
+          "is_selected": true,
+          "display_name": "Total Orders",
+          "type": "semantic_model.measure",
+          "data_type": "Int64",
+          "description": "Distinct order count. One order may have multiple items. Also: order volume, number of orders, order count.",
+          "children": []
+        },
+        {
+          "id": "28a5fce9-0bc6-4d42-ae0c-296bd324b5f9",
+          "is_selected": true,
+          "display_name": "Total Line Items",
+          "type": "semantic_model.measure",
+          "data_type": "Int64",
+          "description": "Row count of Sales table. Each row is one product in an order. Also: item count, units sold, quantity.",
+          "children": []
+        },
+        {
+          "id": "b3c1f158-b148-4dcb-8ab1-3b799124df4b",
+          "is_selected": true,
+          "display_name": "Total Revenue",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Sum of price + freight per item in BRL. Primary sales metric. Also: total sales, gross revenue, turnover.",
+          "children": []
+        },
+        {
+          "id": "79e04fa6-f858-40cf-b5e1-ce480a65e19c",
+          "is_selected": true,
+          "display_name": "Total Price",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Sum of product prices in BRL, excluding shipping. Also: product revenue, net price, merchandise value.",
+          "children": []
+        },
+        {
+          "id": "110dfc91-dcfd-4ac1-9417-9bdcdfb4f92b",
+          "is_selected": true,
+          "display_name": "Total Freight",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Sum of shipping costs in BRL. Also: shipping cost, delivery cost, logistics cost, freight total.",
+          "children": []
+        },
+        {
+          "id": "f605ca63-6f13-41ab-b0d2-fe75cfe00690",
+          "is_selected": true,
+          "display_name": "Total Payment",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Sum of order-level payments in BRL. Also: total paid, payment amount, gross payment.",
+          "children": []
+        },
+        {
+          "id": "5cb9adb1-cc51-42cf-a8ce-24189092b66d",
+          "is_selected": true,
+          "display_name": "Avg Order Value",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Revenue per order in BRL. Also: AVO, average basket, average ticket size.",
+          "children": []
+        },
+        {
+          "id": "2b3b2df3-a186-4b16-acac-ac5c03cfcce4",
+          "is_selected": true,
+          "display_name": "Max Order Value",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Largest single order payment in BRL. Also: highest order, biggest purchase, peak order value.",
+          "children": []
+        },
+        {
+          "id": "3ca601d3-3e26-4c59-aef6-f74dda35a16a",
+          "is_selected": true,
+          "display_name": "Avg Line Item Value",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Average revenue per line item in BRL. Also: average item price, mean item value.",
+          "children": []
+        },
+        {
+          "id": "6385dc84-bab1-458a-82d8-85fd7f1021c8",
+          "is_selected": true,
+          "display_name": "Freight Pct",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Freight as % of revenue. Higher = more shipping-heavy. Also: shipping ratio, freight share.",
+          "children": []
+        },
+        {
+          "id": "17916f6a-6572-4037-a069-ebf95e6f533b",
+          "is_selected": true,
+          "display_name": "Total Customers",
+          "type": "semantic_model.measure",
+          "data_type": "Int64",
+          "description": "Distinct customer count with orders. Also: customer base, unique buyers, active customers.",
+          "children": []
+        },
+        {
+          "id": "5d37edba-6fb1-4665-a2f3-1e9d93fbd9ee",
+          "is_selected": true,
+          "display_name": "Total Sellers",
+          "type": "semantic_model.measure",
+          "data_type": "Int64",
+          "description": "Distinct seller count with orders. Also: vendor count, merchant count, active sellers.",
+          "children": []
+        },
+        {
+          "id": "83b0d3e1-b9da-49e4-b70c-033ccc1b0a1b",
+          "is_selected": true,
+          "display_name": "Total Products Sold",
+          "type": "semantic_model.measure",
+          "data_type": "Int64",
+          "description": "Distinct products ordered. Also: SKU count, unique items, product variety.",
+          "children": []
+        },
+        {
+          "id": "3ad5c9e0-a2af-45b0-8cff-4f2313aa5a7e",
+          "is_selected": true,
+          "display_name": "Seller City Count",
+          "type": "semantic_model.measure",
+          "data_type": "Int64",
+          "description": "Distinct cities with sellers. Also: seller locations, vendor cities, geographic reach.",
+          "children": []
+        },
+        {
+          "id": "1faefe62-8bac-4110-8e19-c71c946aa567",
+          "is_selected": true,
+          "display_name": "Category Count",
+          "type": "semantic_model.measure",
+          "data_type": "Int64",
+          "description": "Distinct product categories sold. Also: category variety, product groups, category breadth.",
+          "children": []
+        },
+        {
+          "id": "2cf3f0b4-8e53-4d7e-aa40-59c647fe7eed",
+          "is_selected": true,
+          "display_name": "Revenue per Customer",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Revenue divided by customers. Also: ARPC, customer value, spend per customer.",
+          "children": []
+        },
+        {
+          "id": "bc0b7585-32fa-4bc7-9251-b3cdf36cc8d8",
+          "is_selected": true,
+          "display_name": "Revenue per Seller",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Revenue divided by sellers. Also: seller productivity, revenue per vendor, seller yield.",
+          "children": []
+        },
+        {
+          "id": "102f1feb-d6bf-41e5-88a2-c37a5935e578",
+          "is_selected": true,
+          "display_name": "Avg Delivery Days",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Mean days from order to delivery. Also: shipping time, fulfillment time, lead time, transit days.",
+          "children": []
+        },
+        {
+          "id": "5c6a98b2-f160-4fb5-b1cd-9cc9b5962435",
+          "is_selected": true,
+          "display_name": "Late Delivery Pct",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Pct of orders arriving after estimated date. Also: overdue rate, missed SLA, delay rate.",
+          "children": []
+        },
+        {
+          "id": "8ceea63e-e00e-4ff1-bafb-22ad3c8e8f01",
+          "is_selected": true,
+          "display_name": "On-Time Delivery Pct",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Pct of orders arriving on or before estimated date. Also: SLA compliance, punctuality rate.",
+          "children": []
+        },
+        {
+          "id": "a250e487-d04c-488f-91da-101077313b54",
+          "is_selected": true,
+          "display_name": "Avg Delivery Variance",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Mean days early (−) or late (+) vs estimate. Also: SLA gap, delivery accuracy, variance.",
+          "children": []
+        },
+        {
+          "id": "91d060b9-24d6-45e4-b07f-0d6a086f671e",
+          "is_selected": true,
+          "display_name": "Delivered Orders",
+          "type": "semantic_model.measure",
+          "data_type": "Int64",
+          "description": "Orders with status 'delivered'. Also: completed orders, fulfilled orders, shipped & received.",
+          "children": []
+        },
+        {
+          "id": "d3baed73-ef78-41ec-af9d-f2e7ea197cf6",
+          "is_selected": true,
+          "display_name": "Late Deliveries",
+          "type": "semantic_model.measure",
+          "data_type": "Int64",
+          "description": "Count of orders delivered past the estimate. Also: delayed orders, overdue shipments.",
+          "children": []
+        },
+        {
+          "id": "4b75df80-f6b3-4416-aad3-fe1774179422",
+          "is_selected": true,
+          "display_name": "Avg Installments",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Average payment installment count per order. Also: payment splits, installment count, EMI count.",
+          "children": []
+        },
+        {
+          "id": "ad1a4530-e1ea-4a7d-94ff-ca7a753ede3c",
+          "is_selected": true,
+          "display_name": "Avg Approval Hours",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Mean hours from order to payment approval. Also: approval time, processing time, review time.",
+          "children": []
+        },
+        {
+          "id": "e3b73494-83ef-4519-96fa-a2b1ffa0058a",
+          "is_selected": true,
+          "display_name": "Products Without Photos",
+          "type": "semantic_model.measure",
+          "data_type": "Int64",
+          "description": "Count of products with zero photos. May lack advertising. Also: no-image items, photo-less products.",
+          "children": []
+        },
+        {
+          "id": "0a0e5f17-af5a-46ca-9a97-f9da692e2a6a",
+          "is_selected": true,
+          "display_name": "Avg Product Photos",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Mean photo count per product. Low = weak advertising. Also: image count, photo coverage.",
+          "children": []
+        },
+        {
+          "id": "f5217d41-cf08-44e2-8706-d753454ce389",
+          "is_selected": true,
+          "display_name": "Avg Product Weight",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Average product weight in grams. Also: mean weight, package weight, shipment weight.",
+          "children": []
+        },
+        {
+          "id": "4797bf40-3f76-4e67-b662-670e5c5b2b8e",
+          "is_selected": true,
+          "display_name": "Canceled Orders",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Orders with 'canceled' status. Also: dropped orders, aborted orders, order cancellations.",
+          "children": []
+        },
+        {
+          "id": "f9f0209e-8805-47f4-abc9-acfc454dcea6",
+          "is_selected": true,
+          "display_name": "Cancellation Rate",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Canceled as % of total orders. Also: churn rate, dropout rate, abort rate.",
+          "children": []
+        },
+        {
+          "id": "96955635-97cf-4dbd-8ac9-fee03a7aac3c",
+          "is_selected": true,
+          "display_name": "Revenue YTD",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Year-to-date cumulative revenue. Also: YTD sales, running total, cumulative income.",
+          "children": []
+        },
+        {
+          "id": "c1948916-cf59-4b77-9dda-fb0c323355b4",
+          "is_selected": true,
+          "display_name": "Revenue PY",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Same-period revenue from prior year. Also: last year sales, PY revenue, prior year comparison.",
+          "children": []
+        },
+        {
+          "id": "8559fd75-6fb3-4bc4-bd6d-3c36ffe0b918",
+          "is_selected": true,
+          "display_name": "Revenue YoY Pct",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Revenue growth vs prior year as %. Also: YoY growth, annual change, sales trend.",
+          "children": []
+        },
+        {
+          "id": "964a1103-3a9f-4b07-9528-a8d77787fe60",
+          "is_selected": true,
+          "display_name": "Orders PY",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Order count from prior year same period. Also: last year orders, PY volume.",
+          "children": []
+        },
+        {
+          "id": "ea9286c0-f909-426b-b7ea-435749b515ac",
+          "is_selected": true,
+          "display_name": "Orders YoY Pct",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Order count change vs prior year as %. Also: YoY order growth, volume trend.",
+          "children": []
+        },
+        {
+          "id": "40f86483-be84-4c17-b5ff-93a204a7e831",
+          "is_selected": true,
+          "display_name": "Orders per Customer",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Average orders placed per customer. Also: purchase frequency, buy rate, engagement.",
+          "children": []
+        },
+        {
+          "id": "cb4f1241-eef1-457a-a454-da01cb72726e",
+          "is_selected": true,
+          "display_name": "Items per Order",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Average line items per order. Also: basket size, items per basket, order depth.",
+          "children": []
+        },
+        {
+          "id": "1b62f2e7-eec5-4c59-97eb-4a167598d59d",
+          "is_selected": true,
+          "display_name": "Category Revenue Rank",
+          "type": "semantic_model.measure",
+          "data_type": "Int64",
+          "description": "Rank of product category by revenue (1=top). Also: category position, top category.",
+          "children": []
+        },
+        {
+          "id": "77aef43e-30b2-47a5-9626-fedc8f68b0b5",
+          "is_selected": true,
+          "display_name": "Seller Revenue Rank",
+          "type": "semantic_model.measure",
+          "data_type": "Int64",
+          "description": "Rank of seller by revenue (1=top). Also: seller position, best seller rank, top vendor.",
+          "children": []
+        },
+        {
+          "id": "bdf21756-8ca1-441c-87d6-ab3c91157ee7",
+          "is_selected": true,
+          "display_name": "Overall Avg Delivery Days",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Grand total avg delivery days across all cities. Baseline for comparison. Also: global avg, benchmark.",
+          "children": []
+        },
+        {
+          "id": "b73b8ef2-f9f3-4477-a906-a3b5ad7b8e28",
+          "is_selected": true,
+          "display_name": "Delivery Speed Improvement",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Days faster than overall avg. Positive = faster than average. Also: speed gain, time saved.",
+          "children": []
+        },
+        {
+          "id": "bbd6c5a5-c062-4c21-9aed-0ab5aa2a0c74",
+          "is_selected": true,
+          "display_name": "Delivery Speed Pct Faster",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Pct faster than overall avg. Positive = quicker delivery. Also: speed advantage, efficiency gain.",
+          "children": []
+        },
+        {
+          "id": "3be49915-992c-41f6-87b6-486d0e5151cc",
+          "is_selected": true,
+          "display_name": "Is Fast Delivery City",
+          "type": "semantic_model.measure",
+          "data_type": "Boolean",
+          "description": "1 if city delivers faster than average, 0 otherwise. Use to filter fast-delivery cities.",
+          "children": []
+        },
+        {
+          "id": "8712c6e3-8203-43a1-aa24-d15ade924f4c",
+          "is_selected": true,
+          "display_name": "ARPLISPC",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Average revenue per line item sold per customer. Also: unit yield, per-item customer value, item revenue intensity.",
+          "children": []
+        },
+        {
+          "id": "e2326fae-58f4-405c-8ea9-10243fbcd70a",
+          "is_selected": true,
+          "display_name": "Credit Card Revenue",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Revenue from credit card payments only. Also: card revenue, visa/mastercard sales.",
+          "children": []
+        },
+        {
+          "id": "dec78dd0-8554-48f0-b552-81bdc4d7bcc8",
+          "is_selected": true,
+          "display_name": "Boleto Revenue",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Revenue from boleto payments only. Also: bank slip revenue, boleto sales.",
+          "children": []
+        },
+        {
+          "id": "ef268bf1-affa-4845-9378-71bb7c508c39",
+          "is_selected": true,
+          "display_name": "Credit Card Revenue Pct",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Pct of revenue from credit cards. Also: card share, card penetration.",
+          "children": []
+        },
+        {
+          "id": "7460a852-dea2-4fb3-933f-2ffbbcdc7b2c",
+          "is_selected": true,
+          "display_name": "Selected KPI",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Returns the value of whichever KPI is selected in the KPI Selector slicer. Disconnected table pattern. Also: dynamic KPI, KPI switcher.",
+          "children": []
+        },
+        {
+          "id": "d72a7d90-be59-47e6-89e5-f0b1ed82a8a6",
+          "is_selected": true,
+          "display_name": "Converted Revenue",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Revenue converted to the currency selected in the Currency slicer. Also: converted sales, FX revenue, revenue in USD/EUR/GBP.",
+          "children": []
+        },
+        {
+          "id": "0db49766-a4a8-4b7a-823f-f8520729b6a3",
+          "is_selected": true,
+          "display_name": "Currency Label",
+          "type": "semantic_model.measure",
+          "data_type": "String",
+          "description": "Currency symbol from slicer. Use in card titles or labels. Returns R$ if nothing selected.",
+          "children": []
+        },
+        {
+          "id": "689d7801-dada-4f95-93fb-391d4218457f",
+          "is_selected": true,
+          "display_name": "Formatted Revenue",
+          "type": "semantic_model.measure",
+          "data_type": "String",
+          "description": "Formatted revenue with currency symbol. Example: $1,234.56. Also: display revenue, labeled revenue.",
+          "children": []
+        },
+        {
+          "id": "9a25f884-a238-4298-a6fd-98ccf1a78778",
+          "is_selected": true,
+          "display_name": "Scenario Revenue",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Revenue adjusted by what-if scenario multiplier. Also: forecast revenue, projected revenue, scenario analysis.",
+          "children": []
+        },
+        {
+          "id": "695a8fbb-7174-4865-828d-4d7e08107431",
+          "is_selected": true,
+          "display_name": "Scenario Variance",
+          "type": "semantic_model.measure",
+          "data_type": "Double",
+          "description": "Difference between scenario and actual revenue. Positive = upside. Also: scenario impact, variance.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "e41ddb22-c25c-4690-9d76-1761cb6ffec0",
+      "is_selected": true,
+      "display_name": "Scenario",
+      "type": "semantic_model.table",
+      "description": "Disconnected what-if table. No relationships. Select a scenario and [Scenario Revenue] applies the multiplier. Values: Worst Case (0.85x), Base Case (1.0x), Best Case (1.15x).",
+      "children": [
+        {
+          "id": "27ea7976-055d-46ca-924c-a6337de583f5",
+          "is_selected": true,
+          "display_name": "Scenario",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "What-if scenario name. Values: Worst Case (-15%), Base Case (no change), Best Case (+15%).",
+          "children": []
+        },
+        {
+          "id": "fd586f8e-be05-401d-8b61-06f18811892d",
+          "is_selected": true,
+          "display_name": "Multiplier",
+          "type": "semantic_model.column",
+          "data_type": "Double",
+          "description": "Revenue multiplier for this scenario. 0.85 = worst, 1.0 = base, 1.15 = best.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "9aa88ecf-62cc-40f2-be15-ab3af852e46e",
+      "is_selected": true,
+      "display_name": "Seller Geography",
+      "type": "semantic_model.table",
+      "description": "Seller location details: city, state, and lat/long coordinates for mapping.",
+      "children": [
+        {
+          "id": "5e206841-69ac-4389-9c2e-ae68d66217f1",
+          "is_selected": true,
+          "display_name": "Zip Code",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Postal code for seller location.",
+          "children": []
+        },
+        {
+          "id": "d62e2d49-153a-47af-9655-9e79a9cba0e3",
+          "is_selected": true,
+          "display_name": "City",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Seller city name in Brazil.",
+          "children": []
+        },
+        {
+          "id": "cd06ccd1-9883-4f85-a612-813a544d2918",
+          "is_selected": true,
+          "display_name": "State",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Seller Brazilian state code (e.g., SP, RJ, MG).",
+          "children": []
+        },
+        {
+          "id": "ddfa0a0e-4b7d-4fdb-9a7a-e0aa4f329bb9",
+          "is_selected": true,
+          "display_name": "Latitude",
+          "type": "semantic_model.column",
+          "data_type": "Double",
+          "description": "Seller latitude coordinate for map visualizations.",
+          "children": []
+        },
+        {
+          "id": "2c93802e-4496-4517-92cf-057b2681a875",
+          "is_selected": true,
+          "display_name": "Longitude",
+          "type": "semantic_model.column",
+          "data_type": "Double",
+          "description": "Seller longitude coordinate for map visualizations.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "f0057750-dbe8-4431-ad1a-8c9325a5897f",
+      "is_selected": true,
+      "display_name": "Sellers",
+      "type": "semantic_model.table",
+      "description": "Seller dimension with identifier and location code.",
+      "children": [
+        {
+          "id": "4b3a85be-483c-473e-aa38-2be8b022c0bf",
+          "is_selected": true,
+          "display_name": "Seller Zip Code",
+          "type": "semantic_model.column",
+          "data_type": "Int64",
+          "description": "Seller postal code. Links to Seller Geography for location details.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "e3c44a78-5ec2-4ba3-9ed0-c9d00b6b37c1",
+      "is_selected": true,
+      "display_name": "Time Calculation",
+      "type": "semantic_model.table",
+      "description": "Calculation group for time intelligence. Filter by this column to switch any measure between: Current, YTD, Prior Year, or YoY %. Works with all measures.",
+      "children": [
+        {
+          "id": "57c7e2d0-ca1c-4c9f-a8ee-04c36d2f12ed",
+          "is_selected": true,
+          "display_name": "Time Calculation",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": "Select a time intelligence variant: Current (as-is), YTD (year-to-date), Prior Year (same period last year), or YoY % (year-over-year change). Applies to any measure.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "abb00450-5f29-4e3d-bc85-edc125f12d54",
+      "is_selected": true,
+      "display_name": "Total Measures",
+      "type": "semantic_model.table",
+      "description": null,
+      "children": [
+        {
+          "id": "9a0ebb41-fa7d-4caf-b410-986bc44becd0",
+          "is_selected": true,
+          "display_name": "Total Measures",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": null,
+          "children": []
+        },
+        {
+          "id": "1fe866c6-3d31-428a-8870-9e89bf8860f7",
+          "is_selected": true,
+          "display_name": "Measure",
+          "type": "semantic_model.column",
+          "data_type": "String",
+          "description": null,
+          "children": []
+        }
+      ]
+    }
+  ]
+}

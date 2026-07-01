@@ -1,0 +1,119 @@
+/// One row per sales transaction or order line for a product, customer and date; used to analyze what we sell, who we sell to and sales amounts and quantities over time. Keywords: revenue, customer orders.
+table Sales
+	lineageTag: 29805a9f-5a4b-435b-a102-295783ced49c
+
+	/// Sales order number for this row. Use to filter or group sales activity by order. Code or numeric ID, e.g. 100234.
+	column 'Order Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: 7890029f-3317-44da-ab75-87facaaa8a69
+		summarizeBy: count
+		sourceColumn: OrderNo
+
+	/// Sales transaction or order line date. Use to analyze sales over time. Calendar date, e.g. 2024-03-31.
+	column Date
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: d4decad8-cf02-49e0-b085-6a3b79e545cb
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Year for this sales row. Use to group or filter sales by year. Whole-number year, e.g. 2023, 2024.
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 557a756b-96e6-4588-8152-d141e7cfd020
+		summarizeBy: none
+		sourceColumn: Year
+
+	/// Customer name we sell to on this sales row. Use to analyze sales by customer. Free-text name, e.g. 'Acme Corp'; Partial-text match. Not a vendor name.
+	column 'Customer Name'
+		dataType: string
+		lineageTag: 6be935d4-cd5c-4898-a623-c378d053a6e5
+		summarizeBy: none
+		sourceColumn: custName
+
+	/// Sales region for this row. Use to analyze sales by region. Free-text region, e.g. 'EMEA', 'APAC'; Partial-text match.
+	column Region
+		dataType: string
+		lineageTag: 01881055-a767-4a21-83dc-7da77b84f31f
+		summarizeBy: none
+		sourceColumn: region
+
+	/// Product name or code on this sales row. Use to analyze sales by product. Free-text value, e.g. 'Widget A'; Partial-text match. Not a customer name.
+	column Product
+		dataType: string
+		lineageTag: f86177a7-02d0-4814-9039-e5eccf33054f
+		summarizeBy: none
+		sourceColumn: Prod
+
+	/// Product category on this sales row. Use to compare sales across categories. Free-text category, e.g. 'Hardware', 'Service'; Partial-text match.
+	column Category
+		dataType: string
+		lineageTag: 5bc1e885-0658-4d74-8b5e-2149ef5c63ee
+		summarizeBy: none
+		sourceColumn: Cat
+
+	/// Quantity sold on this sales row. Use to measure units sold. Whole-number quantity, e.g. 5, 20.
+	column Quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: f82708c8-e4ec-4d08-b6c3-cb86caa22f7a
+		summarizeBy: sum
+		sourceColumn: Qty
+
+	/// Unit price for this sales row. Use to analyze price levels and revenue. Numeric amount, e.g. 19.99, 250.
+	column Price
+		dataType: double
+		formatString: 0.00
+		lineageTag: ab64c74e-d53f-4098-be21-8362f049c3f8
+		summarizeBy: average
+		sourceColumn: Price
+
+	/// Discount value applied on this sales row. Use to analyze discounts and net prices. Numeric amount, e.g. 5, 12.5.
+	column Discount
+		dataType: double
+		formatString: 0.00
+		lineageTag: cf8e05e5-b593-4a6f-9eba-52ff072fb5c1
+		summarizeBy: average
+		sourceColumn: Disc
+
+	/// Sales amount for this row as stored (typically net revenue). Use to analyze revenue. Numeric amount, e.g. 99.95, 500.
+	column Amount
+		dataType: double
+		formatString: 0.00
+		lineageTag: 016607d8-25eb-4514-9f04-2c32ddcda76e
+		summarizeBy: sum
+		sourceColumn: Amount
+
+	/// Cost amount associated with this sales row. Use to analyze cost of goods sold. Numeric amount, e.g. 60, 300.
+	column Cost
+		dataType: double
+		formatString: 0.00
+		lineageTag: d5753c10-63c1-4692-99c2-fd2608bcb9f2
+		summarizeBy: sum
+		sourceColumn: Cost
+
+	/// Profit for this sales row (revenue minus cost as stored). Use to analyze margin. Numeric amount, e.g. 39.95, 200.
+	column Profit
+		dataType: double
+		formatString: 0.00
+		lineageTag: 91ae35eb-c270-4de8-925f-c7eb02006621
+		summarizeBy: sum
+		sourceColumn: Profit
+
+	partition Sales = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents(DataFolder, [RelativePath="sales_data_FINAL.csv"]),[Delimiter=",", Columns=13, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"OrderNo", Int64.Type}, {"Date", type date}, {"Year", Int64.Type}, {"custName", type text}, {"region", type text}, {"Prod", type text}, {"Cat", type text}, {"Qty", Int64.Type}, {"Price", type number}, {"Disc", type number}, {"Amount", type number}, {"Cost", type number}, {"Profit", type number}}),
+				    #"Filtered AsOf" = Table.SelectRows(#"Changed Type", each [Date] <= (if AsOfDate = null or Text.Trim(AsOfDate) = "" then Date.From(DateTimeZone.FixedLocalNow()) else Date.FromText(Text.Trim(AsOfDate))))
+				in
+				    #"Filtered AsOf"
+
+	annotation PBI_ResultType = Table
+

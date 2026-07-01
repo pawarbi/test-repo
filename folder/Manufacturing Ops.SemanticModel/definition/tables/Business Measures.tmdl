@@ -1,0 +1,275 @@
+/// This is a measures-only table with no row-level grain; used as a curated container for business KPIs and reusable calculations that are referenced from reports and other queries. Keywords: KPIs, metrics, performance indicators.
+table 'Business Measures'
+	lineageTag: c9a15083-1903-4590-8941-81f0a4105299
+
+	/// Total sales revenue from Sales[Amount]. Keywords: revenue, turnover, sales.
+	measure 'Total Sales' = SUM(Sales[Amount])
+		formatString: $#,0.00;-$#,0.00;$#,0.00
+		displayFolder: Sales
+		lineageTag: 96e11cb2-659c-4cbb-a38f-50ccd14537d5
+
+	/// Total gross profit from Sales[Profit]. Keywords: margin, earnings, gross profit.
+	measure 'Total Profit' = SUM(Sales[Profit])
+		formatString: $#,0.00;-$#,0.00;$#,0.00
+		displayFolder: Sales
+		lineageTag: c1877965-56db-444b-8950-604d11ddc402
+
+	/// Gross profit as a percentage of sales revenue. Keywords: gross margin %, profitability.
+	measure 'Profit Margin %' = DIVIDE([Total Profit], [Total Sales])
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Sales
+		lineageTag: 01b4ca1a-d5e9-47a2-8b63-2db492a2c8e7
+
+	/// Total sales quantity. Keywords: units sold, volume.
+	measure 'Total Sales Qty' = SUM(Sales[Quantity])
+		formatString: #,0
+		displayFolder: Sales
+		lineageTag: eb1ad1ac-4c66-4e94-89a5-8a7561d3b860
+
+	/// Average realized selling price per sold unit.
+	measure 'Average Selling Price' = DIVIDE([Total Sales], [Total Sales Qty])
+		formatString: $#,0.00;-$#,0.00;$#,0.00
+		displayFolder: Sales
+		lineageTag: c71d30cb-61a4-4b98-9652-6dfd53c493f5
+
+	/// Year-to-date sales based on the model Date table. Keywords: YTD revenue, year-to-date sales.
+	measure 'Sales YTD' = TOTALYTD([Total Sales], 'Date'[Date])
+		formatString: $#,0.00;-$#,0.00;$#,0.00
+		displayFolder: Sales\Time Intelligence
+		lineageTag: dc07b13d-9e2e-4ac5-a220-5005dc02f6fe
+
+	/// Year-to-date profit based on the model Date table. Keywords: YTD margin, year-to-date profit.
+	measure 'Profit YTD' = TOTALYTD([Total Profit], 'Date'[Date])
+		formatString: $#,0.00;-$#,0.00;$#,0.00
+		displayFolder: Sales\Time Intelligence
+		lineageTag: 7e2eaf8e-6dfa-4922-8618-3b2bcb883344
+
+	/// Total on-hand inventory quantity. Keywords: stock level, on hand quantity.
+	measure 'Total Inventory Qty' = SUM(Inventory[Quantity])
+		formatString: #,0
+		displayFolder: Inventory
+		lineageTag: 7842b202-6405-474f-8fdd-655d3ba8da7f
+
+	/// Total inventory quantity currently in transit. Keywords: pipeline stock, in-transit inventory.
+	measure 'Inventory In Transit Qty' = SUM(Inventory[In Transit Quantity])
+		formatString: #,0
+		displayFolder: Inventory
+		lineageTag: 4c0a606f-08ad-49fd-9bc0-f5f1d37f2fed
+
+	/// Shortfall quantity where inventory is below reorder threshold. Keywords: stockout risk, at-risk items.
+	measure 'Inventory Below Reorder Qty' = SUMX(FILTER(Inventory, Inventory[Quantity] < Inventory[Reorder Point]), Inventory[Reorder Point] - Inventory[Quantity])
+		formatString: #,0
+		displayFolder: Inventory
+		lineageTag: f678888b-fa6d-48e3-babd-65eb42c16e94
+
+	/// Count of product-plant-date combinations where quantity is below reorder level. Keywords: risky SKUs, stockout SKU count.
+	measure 'Inventory Risk SKU Count' = COUNTROWS(FILTER(SUMMARIZE(Inventory, Inventory[Date], Inventory[Product], Inventory[Plant], "Qty", SUM(Inventory[Quantity]), "Reorder", SUM(Inventory[Reorder Point])), [Qty] < [Reorder]))
+		formatString: #,0
+		displayFolder: Inventory
+		lineageTag: ebd4e1ce-4cd5-41c2-b52f-57db897dcfb3
+
+	/// Total purchase order spend. Keywords: PO spend, purchasing cost.
+	measure 'Purchase Order Amount' = SUM(PurchaseOrders[Amount])
+		formatString: $#,0.00;-$#,0.00;$#,0.00
+		displayFolder: Procurement
+		lineageTag: 753916e2-5956-4585-af96-57151700027c
+
+	/// Count of purchase order rows.
+	measure 'PO Count' = COUNTROWS(PurchaseOrders)
+		formatString: #,0
+		displayFolder: Procurement
+		lineageTag: 64519276-f8a7-460a-b3da-a3ce05d380d5
+
+	/// Count of purchase order rows delivered on time.
+	measure 'On Time PO Count' = CALCULATE(COUNTROWS(PurchaseOrders), PurchaseOrders[On Time] = TRUE())
+		formatString: #,0
+		displayFolder: Procurement
+		lineageTag: 2acbc46a-7e27-46b1-b62c-24cd246f929a
+
+	/// Percentage of purchase order rows delivered on time. Keywords: on-time delivery, OTIF, supplier reliability.
+	measure 'On Time PO Rate' = DIVIDE([On Time PO Count], [PO Count])
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Procurement
+		lineageTag: 3b760ac9-4e4e-4944-b2d4-852ffd3d33df
+
+	/// Average actual days minus promised days across purchase orders.
+	measure 'Average Supplier Delay Days' = AVERAGEX(PurchaseOrders, PurchaseOrders[Actual Days] - PurchaseOrders[Promised Days])
+		formatString: 0.00
+		displayFolder: Procurement
+		lineageTag: 64d5e424-2abb-456e-874f-b22af6c5a86f
+
+	/// Total produced quantity. Keywords: output, throughput.
+	measure 'Production Qty' = SUM(ProductionLog[Quantity])
+		formatString: #,0
+		displayFolder: Production
+		lineageTag: c0aac562-ef22-4cad-adae-e89013a39993
+
+	/// Total good units produced. Keywords: good output, first-pass yield units.
+	measure 'Good Units' = SUM(ProductionLog[Good Units])
+		formatString: #,0
+		displayFolder: Production
+		lineageTag: 51301a32-00ab-4d41-9dcf-e95c04589825
+
+	/// Total scrapped units. Keywords: defect units, waste.
+	measure 'Scrap Units' = SUM(ProductionLog[Scrap Units])
+		formatString: #,0
+		displayFolder: Production
+		lineageTag: acb0a9f7-b14c-41a8-8ff9-af61e8dd0a27
+
+	/// Good units as a percentage of total production quantity. Keywords: yield %, first-pass yield, FPY.
+	measure 'Production Yield %' = DIVIDE([Good Units], [Production Qty])
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Production
+		lineageTag: 297ed87d-cb47-41dc-a102-811afd2a97a5
+
+	/// Scrap units as a percentage of total production quantity. Keywords: defect rate %, scrap ratio.
+	measure 'Scrap Rate %' = DIVIDE([Scrap Units], [Production Qty])
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Production
+		lineageTag: 4d4b1788-78cc-44ea-a4ef-abc37c25ccaf
+
+	/// Total production runtime minutes. Keywords: uptime, run time, operating time.
+	measure 'Runtime Minutes' = SUM(ProductionLog[Runtime Minutes])
+		formatString: #,0
+		displayFolder: Production
+		lineageTag: 9101483e-ea7c-429b-ad03-998101d7e479
+
+	/// Total production downtime minutes. Keywords: downtime, outages, stop time.
+	measure 'Downtime Minutes' = SUM(ProductionLog[Downtime Minutes])
+		formatString: #,0
+		displayFolder: Production
+		lineageTag: a3bfb19e-910b-45ed-a300-f298f4359420
+
+	/// Downtime minutes divided by runtime plus downtime minutes. Keywords: downtime rate %, outage rate.
+	measure 'Downtime %' = DIVIDE([Downtime Minutes], [Runtime Minutes] + [Downtime Minutes])
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Production
+		lineageTag: 4e0ddeec-def6-44b4-8413-dfc112ac11bd
+
+	/// Actual production quantity divided by planned production quantity. Keywords: plan adherence %, schedule compliance.
+	measure 'Schedule Attainment %' = DIVIDE(SUM(ProductionLog[Quantity]), SUM(ProductionLog[Planned Quantity]))
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Production
+		lineageTag: 94e4fa59-a306-43ff-b46f-f9d65d68f144
+
+	measure sls_amt_x =
+			// Sales amount for Turbines and Pumps only.
+			CALCULATE([Total Sales], Products[Category] IN { "Turbines", "Pumps" })
+		formatString: $#,0.00;-$#,0.00;$#,0.00
+		displayFolder: Ambiguous Names Demo
+		lineageTag: dfed4772-f60d-4237-b5d4-a1f537562909
+
+	measure gm2_pct =
+			// Gross margin percentage excluding Spare Parts.
+			DIVIDE(
+			    CALCULATE([Total Profit], Products[Category] <> "Spare Parts"),
+			    CALCULATE([Total Sales], Products[Category] <> "Spare Parts")
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Ambiguous Names Demo
+		lineageTag: fd2a5d73-f82c-4b51-a757-297a134d8de4
+
+	measure po_ok_flagish =
+			// On-time purchase order count divided by high-value purchase order count.
+			DIVIDE(
+			    CALCULATE(
+			        COUNTROWS(PurchaseOrders),
+			        PurchaseOrders[On Time] = TRUE(),
+			        PurchaseOrders[Actual Days] <= PurchaseOrders[Promised Days]
+			    ),
+			    CALCULATE(COUNTROWS(PurchaseOrders), PurchaseOrders[Amount] >= 100000)
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Ambiguous Names Demo
+		lineageTag: 47eaca1e-9274-480d-960a-82f070c9b5a7
+
+	measure prd_yld_day =
+			// Production yield excluding Night shift.
+			DIVIDE(
+			    SUMX(FILTER(ProductionLog, ProductionLog[Shift] <> "Night"), ProductionLog[Good Units]),
+			    SUMX(FILTER(ProductionLog, ProductionLog[Shift] <> "Night"), ProductionLog[Quantity])
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Ambiguous Names Demo
+		lineageTag: 4b9f2eb9-5e0f-4767-bc66-f0d11a7eb023
+
+	measure inv_rsk_u =
+			// Unresolved inventory shortfall after considering in-transit quantity.
+			SUMX(
+			    FILTER(
+			        Inventory,
+			        Inventory[Quantity] < Inventory[Reorder Point]
+			            && Inventory[In Transit Quantity] < (Inventory[Reorder Point] - Inventory[Quantity])
+			    ),
+			    Inventory[Reorder Point] - Inventory[Quantity] - Inventory[In Transit Quantity]
+			)
+		formatString: #,0
+		displayFolder: Ambiguous Names Demo
+		lineageTag: bded1e2e-06df-4899-bec1-fb9442a649bc
+
+	/// GOVERNED. Availability = runtime minutes / (runtime minutes + downtime minutes). Use as the official availability KPI. Keywords: uptime %, machine availability.
+	measure 'Availability %' = DIVIDE([Runtime Minutes],[Runtime Minutes] + [Downtime Minutes])
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Reliability
+		lineageTag: ffc15edb-66de-45d4-8d23-f9ef17a299e2
+
+	/// GOVERNED. Performance = produced quantity / planned quantity. Use as the official performance KPI. Keywords: speed %, rate efficiency, throughput performance.
+	measure 'Performance %' = DIVIDE([Production Qty],SUM(ProductionLog[Planned Quantity]))
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Reliability
+		lineageTag: a9395f35-5b72-4e5d-8325-bf38f35c504c
+
+	/// GOVERNED. Quality = good units / produced quantity. Use as the official quality KPI. Keywords: right-first-time %, defect-free rate.
+	measure 'Quality %' = DIVIDE([Good Units],[Production Qty])
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Reliability
+		lineageTag: c791dbf6-8965-4574-9bc0-a17146220d3f
+
+	/// GOVERNED. Overall Equipment Effectiveness = Availability × Performance × Quality. Use as the official OEE KPI. Keywords: OEE, equipment effectiveness, manufacturing efficiency.
+	measure 'OEE %' = [Availability %] * [Performance %] * [Quality %]
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Reliability
+		lineageTag: 4a97919d-ca9f-4edd-a827-2293a919af8c
+
+	/// GOVERNED. Production quantity for the same period last year based on the model Date table. Keywords: prior-year output, last-year production.
+	measure 'Production Qty PY' = CALCULATE([Production Qty], SAMEPERIODLASTYEAR('Date'[Date]))
+		formatString: #,0;-#,0;0
+		displayFolder: Production\Time Intelligence
+		lineageTag: 8a8142f5-9ffa-4521-a97a-883a11644fdb
+
+	/// GOVERNED. Year-over-year % change in production quantity vs the same period last year. Keywords: YoY growth %, production growth rate.
+	measure 'Production Qty YoY %' = DIVIDE([Production Qty] - [Production Qty PY], [Production Qty PY])
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Production\Time Intelligence
+		lineageTag: fa51bc42-65b9-45e2-b25e-8600f3cf6756
+
+	/// GOVERNED. Year-to-date production quantity based on the model Date table. Keywords: YTD output, year-to-date production.
+	measure 'Production Qty YTD' = TOTALYTD([Production Qty], 'Date'[Date])
+		formatString: #,0;-#,0;0
+		displayFolder: Production\Time Intelligence
+		lineageTag: 144a36cf-b284-420b-b52d-9d9c8547eac9
+
+	/// GOVERNED. Good units produced for the same period last year based on the model Date table. Keywords: prior-year good output, last-year good units.
+	measure 'Good Units PY' = CALCULATE([Good Units], SAMEPERIODLASTYEAR('Date'[Date]))
+		formatString: #,0;-#,0;0
+		displayFolder: Production\Time Intelligence
+		lineageTag: 6a26b328-e839-4096-8493-3a4d6668263c
+
+	/// GOVERNED. Year-over-year % change in good units vs the same period last year. Keywords: YoY quality %, good units growth rate.
+	measure 'Good Units YoY %' = DIVIDE([Good Units] - [Good Units PY], [Good Units PY])
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Production\Time Intelligence
+		lineageTag: d477419d-d5e8-42d0-93d4-74c1552c42d7
+
+	/// Technical placeholder column for the Business Measures table; ignore this column in questions.
+	column Value
+		dataType: int64
+		isHidden
+		lineageTag: b169afe1-1c59-4af0-b442-e7085770cc65
+		summarizeBy: none
+		sourceColumn: [Value]
+
+	partition 'Business Measures' = calculated
+		mode: import
+		source = ROW("Value", 0)
+

@@ -1,0 +1,81 @@
+/// One row per production line within a plant; used to describe how equipment is organized in the factory and to analyze production logs, throughput and downtime by line. Keywords: work center, line, cell.
+table Lines
+	lineageTag: 6a1f6e1d-0ad3-4e5e-bebc-9a91b1a7b848
+
+	/// Internal join key for Lines; use [Line Name] for questions.
+	column LineID
+		dataType: int64
+		isHidden
+		isUnique
+		isKey
+		isNullable: false
+		formatString: 0
+		lineageTag: edc64822-acb1-4836-9aa3-921461740151
+		summarizeBy: none
+		sourceColumn: LineID
+
+	/// Production line name we run. Use to analyze production and downtime by line. Free-text name, e.g. 'Line 1', 'Filling Line'; Partial-text match. Keywords: work center, cell.
+	column 'Line Name'
+		dataType: string
+		isUnique
+		lineageTag: a095c57c-a80d-46a8-910c-766501342cbf
+		summarizeBy: none
+		sourceColumn: line_name
+
+	/// Internal join key linking lines to Plants; use plant columns like [Plant Name] for questions.
+	column PlantID
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 25aa462e-a614-4b06-813f-5611512146d1
+		summarizeBy: none
+		sourceColumn: PlantID
+
+	/// Location within the plant for this line. Use to compare lines by area. Free-text code or label, e.g. 'A1', 'Zone 3'; Partial-text match.
+	column Location
+		dataType: string
+		lineageTag: 46168b19-9f33-4d84-b588-e9560eae70a0
+		summarizeBy: none
+		sourceColumn: loc
+
+	/// Device identifier associated with this line. Use to relate line activity to specific assets. Code-like value, e.g. 'DEV-1001'.
+	column DeviceID
+		dataType: string
+		isHidden
+		lineageTag: 24da858d-75ab-49c7-a803-3bda41a28cb1
+		summarizeBy: none
+		sourceColumn: DeviceID
+
+	/// Line type classification. Use to analyze performance by line type. Free-text category, e.g. 'Assembly', 'Packaging'; Partial-text match.
+	column 'Line Type'
+		dataType: string
+		lineageTag: 7c0e7861-2ce6-420e-bbd8-30c3d4b60005
+		summarizeBy: none
+		sourceColumn: Type
+
+	/// Asset name associated with this line. Use when you need asset text on line records. Free-text name, e.g. 'Press 1'; Partial-text match. Not a product name.
+	column 'Asset Name'
+		dataType: string
+		lineageTag: d388321d-bdff-47d2-9b05-d512c287c183
+		summarizeBy: none
+		sourceColumn: asset
+
+	/// Manufacturer of the asset on this line. Use to view line performance by equipment maker. Free-text name, e.g. 'OEM Co.'; Partial-text match.
+	column Manufacturer
+		dataType: string
+		lineageTag: db2e24c1-9b2d-4ee3-b13a-377bef72646f
+		summarizeBy: none
+		sourceColumn: Mfr
+
+	partition Lines = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents(DataFolder, [RelativePath="lines.csv"]),[Delimiter=",", Columns=8, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"LineID", Int64.Type}, {"line_name", type text}, {"PlantID", Int64.Type}, {"loc", type text}, {"DeviceID", type text}, {"Type", type text}, {"asset", type text}, {"Mfr", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

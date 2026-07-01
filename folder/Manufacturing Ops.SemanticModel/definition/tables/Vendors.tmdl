@@ -1,0 +1,57 @@
+/// One row per vendor or supplier we buy from; used to describe who we purchase from and to analyze purchase orders and inbound supply by vendor attributes. Keywords: supplier, vendor base.
+table Vendors
+	lineageTag: a7ec714b-7ed3-4a34-ab08-bf8f58f47b8c
+
+	/// Internal join key for Vendors; use [Vendor Name] for questions.
+	column id
+		dataType: int64
+		isHidden
+		isUnique
+		isKey
+		isNullable: false
+		formatString: 0
+		lineageTag: d5204912-77d1-4a11-9871-994e3af79b99
+		summarizeBy: none
+		sourceColumn: id
+
+	/// Vendor name we buy from. Use to filter and group purchase orders by vendor. Free-text name, e.g. 'Global Metals'; Partial-text match. Keywords: supplier.
+	column 'Vendor Name'
+		dataType: string
+		lineageTag: e01d2edb-4d3e-4978-9501-fe4a97a1746c
+		summarizeBy: none
+		sourceColumn: vendor_name
+
+	/// Vendor type classification. Use to compare purchasing patterns by vendor type. Free-text category, e.g. 'Raw Material', 'Logistics'; Partial-text match.
+	column 'Vendor Type'
+		dataType: string
+		lineageTag: d0e8e801-a02d-4c6b-8f1c-a7c505c46220
+		summarizeBy: none
+		sourceColumn: type
+
+	/// Vendor country. Use to analyze purchasing and supply by vendor country. Free-text country, e.g. 'China', 'USA'; Partial-text match.
+	column country
+		dataType: string
+		lineageTag: 647ffd93-7f51-4050-b0f0-cdfa35f14b87
+		summarizeBy: none
+		sourceColumn: country
+
+	/// Vendor rating score. Use to rank or filter vendors by performance. Numeric score, e.g. 3.5, 4.0.
+	column rating
+		dataType: double
+		formatString: 0.0
+		lineageTag: 924ebd88-209c-40ac-8c0a-62b80f0ba394
+		summarizeBy: average
+		sourceColumn: rating
+
+	partition Vendors = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents(DataFolder, [RelativePath="vendor list.csv"]),[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"id", Int64.Type}, {"vendor_name", type text}, {"type", type text}, {"country", type text}, {"rating", type number}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

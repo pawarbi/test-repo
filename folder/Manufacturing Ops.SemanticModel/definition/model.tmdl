@@ -1,0 +1,31 @@
+/// Semantic model for manufacturing operations covering sales, inventory, purchasing and production events, with fact tables Sales, SalesSummary, Inventory, PurchaseOrders and ProductionLog linked to core dimensions Date, Products, Customers, Plants, Vendors, Assets and Lines. Curated for AI with plain-language column descriptions, business synonyms, governed measures and a dedicated Date table for time intelligence.
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["Products","Customers","Plants","Vendors","Assets","Lines","Inventory","PurchaseOrders","ProductionLog","Sales","SalesSummary","DataFolder","AsOfDate"]
+
+annotation PBI_ProTooling = ["MCP-PBIModeling","TMDLView_Desktop","DevMode","CopilotTooling_PrepDataForAI"]
+
+ref table Customers
+ref table Plants
+ref table Vendors
+ref table Assets
+ref table Lines
+ref table Inventory
+ref table PurchaseOrders
+ref table ProductionLog
+ref table Sales
+ref table SalesSummary
+ref table Date
+ref table Products
+ref table 'Business Measures'
+
+ref cultureInfo en-US
+

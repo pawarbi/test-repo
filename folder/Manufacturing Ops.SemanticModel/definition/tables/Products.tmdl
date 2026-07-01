@@ -1,0 +1,73 @@
+/// One row per product we sell or stock; used to describe what we sell or purchase and to analyze sales, inventory and production by product attributes such as name, category or family. Keywords: SKU, item, part.
+table Products
+	lineageTag: 2c5f8169-fe25-4194-ae57-543a12ae592f
+
+	/// Internal join key for Products; use [Product Name] or [Product Code] for questions.
+	column ID
+		dataType: int64
+		isHidden
+		isUnique
+		isKey
+		isNullable: false
+		formatString: 0
+		lineageTag: 710363ca-518d-4b37-8e58-cbf413e4c5d5
+		summarizeBy: none
+		sourceColumn: ID
+
+	/// Product code we use to identify the item. Use when working with product identifiers. Text code, e.g. 'P-1001'; Partial-text match.
+	column 'Product Code'
+		dataType: string
+		lineageTag: 9069329d-4f43-4065-a412-a69353f6c1de
+		summarizeBy: none
+		sourceColumn: Code
+
+	/// Product name we sell or stock. Use to analyze sales, inventory and production by product. Free-text name, e.g. 'Widget A'; Partial-text match. Keywords: SKU, item, part.
+	column 'Product Name'
+		dataType: string
+		isUnique
+		lineageTag: f2820c6b-99bd-4878-9ff6-06d38d5e1a44
+		summarizeBy: none
+		sourceColumn: Name
+
+	/// Product category. Use to compare metrics across product categories. Free-text category, e.g. 'Hardware', 'Service'; Partial-text match.
+	column Category
+		dataType: string
+		lineageTag: 2474c733-d929-4b25-a327-aee5640444bb
+		summarizeBy: none
+		sourceColumn: Cat
+
+	/// Product subcategory. Use to drill into product category detail. Free-text label, e.g. 'Small Widgets'; Partial-text match.
+	column Subcategory
+		dataType: string
+		lineageTag: 43ed3b72-a2a1-4287-abb9-fdcc4d0ea44a
+		summarizeBy: none
+		sourceColumn: SubCat
+
+	/// Standard or list price for the product as stored. Use to compare price levels. Numeric amount, e.g. 19.99, 250.
+	column Price
+		dataType: double
+		formatString: 0.00
+		lineageTag: 9a29335f-7013-421f-8e1e-245336b3f657
+		summarizeBy: sum
+		sourceColumn: Price
+
+	/// Standard cost for the product as stored. Use to analyze cost and margin. Numeric amount, e.g. 10, 150.
+	column Cost
+		dataType: double
+		formatString: 0.00
+		lineageTag: 313c978f-40bd-4ba9-bba7-7d7e51b4e3cf
+		summarizeBy: sum
+		sourceColumn: Cost
+
+	partition Products = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents(DataFolder, [RelativePath="PRODUCTS.csv"]),[Delimiter=",", Columns=7, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"ID", Int64.Type}, {"Code", type text}, {"Name", type text}, {"Cat", type text}, {"SubCat", type text}, {"Price", type number}, {"Cost", type number}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,65 @@
+/// One row per snapshot of inventory for a given product, plant and date; used to analyze on-hand quantities and inventory value over time by product, location and calendar. Keywords: stock, on hand.
+table Inventory
+	lineageTag: f52a9f09-069b-4a3c-9668-9b4a36c2214a
+
+	/// Inventory snapshot date for this row. Use to analyze inventory over time. Calendar date, e.g. 2024-03-31.
+	column Date
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 33982255-c3ba-411e-9d51-3f50252d49cc
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Product name in inventory. Use to view on-hand and related metrics by product. Free-text name, e.g. 'Widget A'; Partial-text match. Not a customer or vendor.
+	column Product
+		dataType: string
+		lineageTag: 906cc6a0-a264-47a7-901a-e7c3d0929de4
+		summarizeBy: none
+		sourceColumn: Product
+
+	/// Plant name holding this inventory. Use to analyze inventory by plant. Free-text plant name, e.g. 'Plant A'; Partial-text match.
+	column Plant
+		dataType: string
+		lineageTag: 7a0c8721-1391-4382-8b94-34680acd2ac2
+		summarizeBy: none
+		sourceColumn: Plant
+
+	/// On-hand inventory quantity for the product and plant on this date. Use to see stock levels. Whole-number quantity, e.g. 10, 250.
+	column Quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: b3d56935-3378-4864-94cf-5438462c5c7a
+		summarizeBy: sum
+		sourceColumn: Qty
+
+	/// Reorder threshold quantity for this product and plant. Use to flag items at or below reorder. Whole-number quantity, e.g. 50, 100.
+	column 'Reorder Point'
+		dataType: int64
+		formatString: 0
+		lineageTag: 1ce5ba47-2cfe-4b55-b009-5130f7565c88
+		summarizeBy: sum
+		sourceColumn: Reorder
+
+	/// Quantity of this product in transit to the plant. Use to see pipeline inventory. Whole-number quantity, e.g. 5, 40.
+	column 'In Transit Quantity'
+		dataType: int64
+		formatString: 0
+		lineageTag: 45bf7d7b-f9cd-4ec1-b293-8e69d256de60
+		summarizeBy: sum
+		sourceColumn: InTransit
+
+	partition Inventory = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents(DataFolder, [RelativePath="inventory.csv"]),[Delimiter=",", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Date", type date}, {"Product", type text}, {"Plant", type text}, {"Qty", Int64.Type}, {"Reorder", Int64.Type}, {"InTransit", Int64.Type}}),
+				    #"Filtered AsOf" = Table.SelectRows(#"Changed Type", each [Date] <= (if AsOfDate = null or Text.Trim(AsOfDate) = "" then Date.From(DateTimeZone.FixedLocalNow()) else Date.FromText(Text.Trim(AsOfDate))))
+				in
+				    #"Filtered AsOf"
+
+	annotation PBI_ResultType = Table
+

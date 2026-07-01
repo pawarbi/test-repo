@@ -1,0 +1,14 @@
+/// Base raw-GitHub URL that holds the workshop CSV files. Change THIS one
+/// value (e.g. to your fork/branch) to re-point every table. No trailing slash.
+expression DataFolder = "https://raw.githubusercontent.com/pawarbi/data-agent-L400-workshop/main/data/mfg-ops-data" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 8d31c2ca-7735-4a73-b0ee-065e825884d7
+
+	annotation PBI_ResultType = Text
+
+/// Snapshot cutoff. Leave EMPTY to roll to today on every refresh; set a fixed
+/// date like 2027-03-15 to pin the model to that day.
+expression AsOfDate = null meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
+	lineageTag: 8f54cb12-5b32-4865-8b35-baef228d620a
+
+	annotation PBI_ResultType = Null
+

@@ -1,0 +1,120 @@
+/// One row per production log entry for a specific product, production line, date and device; used to analyze what we produced, how much and on which equipment and line over time. Keywords: production events, machine log, shop floor log.
+table ProductionLog
+	lineageTag: ba03b13c-5ec6-4c12-8590-f6c5b61df19f
+
+	/// Production log date for this entry. Use to analyze production by day. Calendar date, e.g. 2024-03-31.
+	column Date
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 98579e33-5efb-45b6-b2d5-c00a84c6516a
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Date and time of the production log entry. Use for intraday sequencing and timing. Date-time value, e.g. 2024-03-31 14:30.
+	column Timestamp
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 954cf078-6877-43dc-9f55-1b85ab406f4f
+		summarizeBy: none
+		sourceColumn: Timestamp
+
+	/// Year for this production log entry. Use to group production metrics by year. Whole-number year, e.g. 2023, 2024.
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: e6397336-4789-4345-8bf7-ed9c05d1ff0d
+		summarizeBy: none
+		sourceColumn: Year
+
+	/// Production line name for this log entry. Use to analyze production and downtime by line. Free-text name, e.g. 'Line 1'; Partial-text match.
+	column 'Line Name'
+		dataType: string
+		lineageTag: 24795045-7e7a-4503-b0d0-b485a6d67c6a
+		summarizeBy: none
+		sourceColumn: line_name
+
+	/// Device identifier recorded in the log. Use to analyze production by specific device. Code-like value, e.g. 'DEV-1001'.
+	column DeviceID
+		dataType: string
+		isHidden
+		lineageTag: acce7de1-5c0d-4897-812c-a827321a5410
+		summarizeBy: none
+		sourceColumn: DeviceID
+
+	/// Product name produced in this log entry. Use to analyze output and scrap by product. Free-text name, e.g. 'Widget A'; Partial-text match. Not an asset name.
+	column 'Product Name'
+		dataType: string
+		lineageTag: 0228be0a-351b-478e-b9ff-e415c77b7a19
+		summarizeBy: none
+		sourceColumn: product_name
+
+	/// Shift label for this log entry. Use to compare production and downtime by shift. Free-text label, e.g. 'Day', 'Night'; Partial-text match.
+	column Shift
+		dataType: string
+		lineageTag: 11bfe9fa-c7dc-48b4-81de-186cf34b491c
+		summarizeBy: none
+		sourceColumn: Shift
+
+	/// Planned production quantity for this log period. Use to compare planned vs actual output. Whole-number quantity, e.g. 1000, 500.
+	column 'Planned Quantity'
+		dataType: int64
+		formatString: 0
+		lineageTag: 279bb91f-dd22-47fd-bf8e-8567afce8d7c
+		summarizeBy: sum
+		sourceColumn: Planned
+
+	/// Actual produced quantity in this log period. Use to measure total output. Whole-number quantity, e.g. 900, 480.
+	column Quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: 9884393d-8541-4c94-ac4b-cf6fbfe87ff6
+		summarizeBy: sum
+		sourceColumn: Qty
+
+	/// Good units produced in this log period. Use to measure good output. Whole-number quantity, e.g. 880, 470. Keywords: good output, right-first-time units.
+	column 'Good Units'
+		dataType: int64
+		formatString: 0
+		lineageTag: e8edd939-b345-4319-93fa-dd39260848c8
+		summarizeBy: sum
+		sourceColumn: Good
+
+	/// Scrap units produced in this log period. Use to analyze waste and yield. Whole-number quantity, e.g. 20, 10. Keywords: defects, reject units.
+	column 'Scrap Units'
+		dataType: int64
+		formatString: 0
+		lineageTag: f56bf5b6-b88a-44e6-bcb2-642195f5ac4b
+		summarizeBy: sum
+		sourceColumn: Scrap
+
+	/// Runtime duration for this log period. Use to analyze machine running time. Numeric duration value, e.g. 3600, 7200. Keywords: uptime, run time.
+	column 'Runtime Minutes'
+		dataType: int64
+		formatString: 0
+		lineageTag: aa0ce3d5-dbbf-45e3-93f0-02c58a7f51de
+		summarizeBy: sum
+		sourceColumn: Runtime
+
+	/// Downtime duration for this log period. Use to analyze machine downtime. Numeric duration value, e.g. 600, 1800. Keywords: outages, stop time.
+	column 'Downtime Minutes'
+		dataType: int64
+		formatString: 0
+		lineageTag: 368816d9-25c8-48b8-b451-73f7fbd88e7d
+		summarizeBy: sum
+		sourceColumn: Down
+
+	partition ProductionLog = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents(DataFolder, [RelativePath="ProductionLog.csv"]),[Delimiter=",", Columns=13, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Date", type date}, {"Timestamp", type datetime}, {"Year", Int64.Type}, {"line_name", type text}, {"DeviceID", type text}, {"product_name", type text}, {"Shift", type text}, {"Planned", Int64.Type}, {"Qty", Int64.Type}, {"Good", Int64.Type}, {"Scrap", Int64.Type}, {"Runtime", Int64.Type}, {"Down", Int64.Type}}),
+				    #"Filtered AsOf" = Table.SelectRows(#"Changed Type", each [Date] <= (if AsOfDate = null or Text.Trim(AsOfDate) = "" then Date.From(DateTimeZone.FixedLocalNow()) else Date.FromText(Text.Trim(AsOfDate))))
+				in
+				    #"Filtered AsOf"
+
+	annotation PBI_ResultType = Table
+
